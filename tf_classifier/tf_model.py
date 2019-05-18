@@ -42,5 +42,3 @@ class TLClassifier(object):
             evidence.append(evidence_frame)
 
         return evidence
-
-
