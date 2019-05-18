@@ -1,0 +1,29 @@
+version: '2.3'
+services:
+  inference:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    init: true
+    runtime: nvidia
+    volumes:
+      - ./:/code
+      - ./models:/models
+
+    working_dir: /code
+    
+  model-exploration:
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    init: true
+    runtime: nvidia
+    volumes:
+      - ./:/code
+      - ./models:/models
+      - ./capstone_models:/capstone_models
+
+    working_dir: /code
+    
