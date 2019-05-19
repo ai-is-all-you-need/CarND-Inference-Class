@@ -2,6 +2,8 @@ import os
 import numpy as np
 import tensorflow as tf
 
+from collections import Counter
+
 class TLClassifier(object):
     def __init__(self, saved_model_path):
         assert os.path.isdir(saved_model_path), "{} is not a directory".format(saved_model_path)
@@ -18,13 +20,26 @@ class TLClassifier(object):
             int: ID of traffic light color (specified in styx_msgs/TrafficLight)
 
         """
-        assert len(image.shape) == 4, "image should be rank 4, with batch dimmesion on the first dimension"
-        raw_predictions = self.predictor({"inputs": image})
+        # Warning: Assuming that we only infer one frame at a time
+        img_array = np.array([image])
+        assert len(img_array.shape) == 4, "image should be rank 4, with batch dimmesion on the first dimension"
+        raw_predictions = self.predictor({"inputs": img_array})
         predictions = self.parse_predictions(raw_predictions, threshold)
-
-        # TODO: Add logic to decide which traffic light are we seeing based on predictions
-
-        return predictions
+        # print predictions
+        assert len(predictions) == 1, "We infered more than one frame"
+        prediction = predictions[0]
+        return prediction
+        # if not prediction:
+        #     return TrafficLight.UNKNOWN
+        # else:
+        #     classes = [x for x, _ in prediction]
+        #     traffic_light = self.most_frequent(classes)
+        #     if traffic_light == 1.0:
+        #         return TrafficLight.GREEN
+        #     if traffic_light == 2.0:
+        #         return TrafficLight.RED
+        #     if traffic_light == 3.0:
+        #         return TrafficLight.YELLOW
 
     @staticmethod
     def parse_predictions(predictions, threshold=0.6):
@@ -42,3 +57,9 @@ class TLClassifier(object):
             evidence.append(evidence_frame)
 
         return evidence
+
+    @staticmethod
+    def most_frequent(List): 
+        occurence_count = Counter(List) 
+        return occurence_count.most_common(1)[0][0]
+
